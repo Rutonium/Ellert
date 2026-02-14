@@ -47,6 +47,15 @@ Whenever a pin mapping, board behavior, dependency, build parameter, or deployme
   - Master user-panel GPIO inputs moved to `Input CPU` (set to unassigned `-1` in `PinDefinitions.h`).
   - Ventilation outputs remapped to `D49`, `D50`, `D51`.
   - Functional output mapping documented in `INPUT_OUTPUT_MAP.md`.
+- Latest display CPU update:
+  - `Display CPU` now targets Arduino UNO + 3.5" TFT (same hardware class as `Input CPU`).
+  - Dashboard layout implemented in `firmware/display_cpu/display_cpu.ino` in landscape orientation.
+  - Master status payload expanded for dashboard data in `RemoteInterfaces.cpp` / `protocol_v1.h`.
+  - Dashboard visual updates added: centered `SPEED/POWER` headers, smoother speed font, gear indicator in speed box, blinking indicator circles, top-left time, `km/t` unit.
+- Current hardware decision:
+  - `Master CPU` remains Arduino Due for now.
+  - UI migration target is ESP32-S3 integrated 3.5" boards (JC3248W535/EN class) for both `Input CPU` and `Display CPU`.
+  - Existing UNO-based input/display firmware is interim and will be ported when boards arrive.
 
 ## Why EEPROM Shim Exists
 

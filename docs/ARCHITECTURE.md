@@ -4,7 +4,7 @@
 
 - `Master CPU` (Arduino Due): mandatory, fail-safe, controls all vehicle outputs.
 - `Input CPU` (Arduino UNO + touch UI): optional, sends user intent only.
-- `Display CPU`: optional, receives status snapshots and renders UI.
+- `Display CPU` (Arduino UNO + 3.5" TFT): optional, receives status snapshots and renders UI.
 
 ## Wiring (Simple Star Topology)
 
@@ -36,3 +36,6 @@ Current skeleton implementation:
 - `firmware/master_cpu/RemoteInterfaces.*`
 - `firmware/input_cpu/input_cpu.ino`
 - `firmware/display_cpu/display_cpu.ino`
+
+Display UI orientation:
+- `Display CPU` is now set to horizontal (landscape).

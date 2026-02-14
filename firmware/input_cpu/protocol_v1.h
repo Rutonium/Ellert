@@ -13,6 +13,28 @@ static const uint8_t kFrameOverhead = 6; // sof, version, type, seq, len, crc8
 static const uint32_t kHeartbeatMs = 500;
 static const uint32_t kMasterStatusMs = 200;
 static const uint32_t kNodeOfflineTimeoutMs = 1500;
+static const uint8_t kStatusPayloadLen = 18;
+
+enum GearCode : uint8_t {
+    GEAR_P = 0,
+    GEAR_R = 1,
+    GEAR_N = 2,
+    GEAR_D = 3,
+    GEAR_UNKNOWN = 255
+};
+
+enum StatusIndicatorBits : uint8_t {
+    IND_LEFT = 1 << 0,
+    IND_RIGHT = 1 << 1,
+    IND_HAZARD = 1 << 2
+};
+
+enum StatusLightBits : uint8_t {
+    LIGHT_DRL = 1 << 0,
+    LIGHT_NEAR = 1 << 1,
+    LIGHT_HIGH = 1 << 2,
+    LIGHT_BRAKE = 1 << 3
+};
 
 enum MessageType : uint8_t {
     MSG_HEARTBEAT = 0x01,

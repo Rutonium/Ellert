@@ -1,0 +1,70 @@
+﻿Category;Ellert AI Function;Original Name (if different);Type of input;Original Plug/Wire Name;Original Pin No;Arduino Due Pin no;Pin Type;Voltage Level (Expected at Arduino Pin after conditioning);Notes/Considerations
+INPUT;Ignition - Key ON;Indication from Key;On/Off;J12;1;D23;Digital;3.3V;Requires voltage divider from 12V. Debounce. (This is ON/RUN)
+INPUT;Ignition - ACC (if separate);Zündschloss ACC;On/Off;N/A - To Be Wired;N/A;D22;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Ignition - START (if used);Zündschloss START;On/Off;N/A - To Be Wired;N/A;D24;Digital;3.3V;Requires voltage divider from 12V. Debounce. EV might not have traditional 'start'.
+INPUT;Brake Pedal Switch;Bremspedal;On/Off;N/A - Switch Input;N/A;D25;Digital;3.3V;CRITICAL! Requires voltage divider from 12V. Debounce.
+INPUT;Handbrake Switch;Handbremse;On/Off;N/A - Switch Input;N/A;D26;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Accelerator Pedal;Fahrpedal;Analog;N/A - Sensor Input;N/A;A0;Analog;0-3.3V;Ensure sensor output is 0-3.3V or use divider.
+INPUT;Gear - Park;PARK;On/Off;Gear Ny;1;D27;Digital;3.3V;From Gear Ny connector. Debounce.
+INPUT;Gear - Reverse;REVERSE;On/Off;Gear Ny;3;D28;Digital;3.3V;From Gear Ny connector. Debounce.
+INPUT;Gear - Neutral;NEUTRAL;On/Off;N/A - To Be Wired;N/A;D29;Digital;3.3V;If Neutral is a separate switch. Debounce.
+INPUT;Gear - Drive;DRIVE;On/Off;Gear Ny;2;D30;Digital;3.3V;From Gear Ny connector. Debounce.
+INPUT;Indicator Stalk - Left;blink venstre;On/Off;J10;3;D31;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Indicator Stalk - Right;blink højre;On/Off;J10;2;D32;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Lights Stalk - Parking;Normal lights (related);On/Off;J15;10;D33;Digital;3.3V;User Panel 'Normal lights'. Stalk might be separate. Debounce.
+INPUT;Lights Stalk - Headlights;Normal lights (related);On/Off;J15;10;D34;Digital;3.3V;User Panel 'Normal lights'. Stalk might be separate. Debounce.
+INPUT;High Beam Switch (Stalk);High Beam - Temporary;On/Off;J10;6;D35;Digital;3.3V;Requires voltage divider from 12V. Debounce. (Flash-to-pass)
+INPUT;Hazard Lights Switch;Warnblinker;On/Off;N/A - Switch Input;N/A;D36;Digital;3.3V;If dedicated switch. Requires voltage divider. Debounce.
+INPUT;Wiper Stalk - Low;Scheibenwischer Stufe 1;On/Off;N/A - Switch Input;N/A;D37;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Wiper Stalk - High;Scheibenwischer Stufe 2;On/Off;N/A - Switch Input;N/A;D38;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Wiper Stalk - Intermittent;Scheibenwischer Intervall;On/Off;N/A - Switch Input;N/A;D39;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Windscreen Washer Switch;Scheibenwaschanlage;On/Off;N/A - Switch Input;N/A;D40;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Horn Button (from stalk);horn;On/Off;J10;1;D41;Digital;3.3V;Requires voltage divider from 12V. Debounce.
+INPUT;Heater Switch - Element 1;A/C Vent + Heat 1 (related);On/Off;J15;5;D42;Digital;3.3V;User Panel. Debounce.
+INPUT;Heater Switch - Element 2;A/C Vent + Heat 1 + Heat 2 (related);On/Off;J15;6;D43;Digital;3.3V;User Panel. Debounce.
+INPUT;Heater Fan Switch - Low;A/C Vent Only (related to Vent);On/Off;J15;4;D44;Digital;3.3V;User Panel. Debounce. Controls Fan Relay 1.
+INPUT;Heater Fan Switch - Mid;A/C Vent + Heat 1 (related to Vent);On/Off;J15;5;D45;Digital;3.3V;User Panel. Debounce. Controls Fan Relay 2.
+INPUT;Heater Fan Switch - High;A/C Vent + Heat 1 + Heat 2 (related to Vent);On/Off;J15;6;D46;Digital;3.3V;User Panel. Debounce. Controls Fan Relay 3.
+INPUT;Demister Switch;Heckscheibenheizung;On/Off;N/A - Switch Input;N/A;D47;Digital;3.3V;If dedicated switch. Requires voltage divider. Debounce.
+INPUT;User Panel - Push button for reset trip couter;;On/Off;J15;1;D48;Digital;3.3V;Input. Activates on holding for 5s. Debounce.
+INPUT;User Panel - A/C OFF All;;On/Off;J15;3;A1 (D55);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - A/C Vent Only;;On/Off;J15;4;A2 (D56);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - A/C Vent + Heat 1;;On/Off;J15;5;A3 (D57);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - A/C Vent + Heat 1 + Heat 2;;On/Off;J15;6;A4 (D58);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - Windows Wiper Start;;On/Off;J15;7;A5 (D59);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - Winodw Wiper Stop;;On/Off;J15;8;A6 (D60);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - Sprinkler;;On/Off;J15;9;A7 (D61);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - Normal lights;;On/Off;J15;10;A8 (D62);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - High beam;;On/Off;J15;11;A9 (D63);Digital;3.3V;User Panel. Debounce.
+INPUT;User Panel - All lights off;;On/Off;J15;13;A10 (D64);Digital;3.3V;User Panel. Debounce.
+OUTPUT;Motor Controller PWM;Motorsteuerung PWM;Unknown;N/A - To Motor Controller;N/A;DAC0;PWM (Analog Output);0-3.3V;"True analog output if controller supports it; or use digital PWM pin."
+OUTPUT;Main Contactor Relay;Schütz Motorsteuerung;On/Off;N/A - To Contactor Coil;N/A;D2;Digital Output;3.3V;CRITICAL! Controls coil of main contactor.
+OUTPUT;Brake Lights Relay;Brake Lights;On/Off;J6;11;D3;Digital Output;3.3V;CRITICAL!
+OUTPUT;Headlights Relay (Normal Beam);Kort Lys;On/Off;J7;8;D4;Digital Output;3.3V;
+OUTPUT;High Beams Relay (Long Beam);Lang Lys;On/Off;J7;7;D5;Digital Output;3.3V;
+OUTPUT;Parking Lights Relay (Front Left);Sidelys Venstre - Foran;On/Off;J7;3;D6;Digital Output;3.3V;Combined with D14 for all parking/side lights
+OUTPUT;Parking Lights Relay (Front Right);Sidelys Højre - Foran;On/Off;J7;2;D6;Digital Output;3.3V;Combined with D14 for all parking/side lights
+OUTPUT;Indicator Left Relay;Blink V;On/Off;J7;9;D7;Digital Output;3.3V;Software flash.
+OUTPUT;Indicator Right Relay;Blink H;On/Off;J7;10;D8;Digital Output;3.3V;Software flash.
+OUTPUT;Wiper Intermittent Relay;Visk +;On/Off;J7;4;D14 (TX3);Digital Output;3.3V;If controlled separately for intermittent.
+OUTPUT;Wiper Low Speed Relay;Visk;On/Off;J7;5;D15 (RX3);Digital Output;3.3V;Normal continuous wiper
+OUTPUT;Wiper High Speed Relay;Visk P;On/Off;J7;6;D16 (TX2);Digital Output;3.3V;High speed wiper
+OUTPUT;Windscreen Washer Pump Relay;Sprinkler Motor power;On/Off;J6;10;D17 (RX2);Digital Output;3.3V;
+OUTPUT;Horn Relay;Horn;On/Off;J7;11;D18 (TX1);Digital Output;3.3V;
+OUTPUT;Heater Element 1 Relay;Heating element 1;On/Off;Heating;1;D19 (RX1);Digital Output;3.3V;High Current - verify relay spec for main pack voltage.
+OUTPUT;Heater Element 2 Relay;Heating Element 2;On/Off;Heating;2;D49 (PC14);Digital Output;3.3V;High Current - verify relay spec for main pack voltage.
+OUTPUT;Heater Fan Relay (Ventilator);Ventilator Motor;On/Off;J7;14;D50 (PC13);Digital Output;3.3V;Controlled by logic from User Panel Vent 1/2/3. May need multiple relays for speeds.
+OUTPUT;Demister Relay;Heckscheibenheizung;On/Off;N/A - To Demister Element;N/A;A11 (D65);Digital Output;3.3V;Potentially high current.
+OUTPUT;Interior Light Relay;Innenbeleuchtung;On/Off;N/A - To Light;N/A;D51 (PC12);Digital Output;3.3V;
+OUTPUT;Reverse Light Relay;Rückfahrlicht;On/Off;N/A - To Light;N/A;D52 (PB21);Digital Output;3.3V;
+OUTPUT;P-Brake Indicator Light;P-Brake indicator (Light);On/Off;J7;13;D53 (PB14);Digital Output;3.3V;Controlled by Handbrake Switch Input.
+OUTPUT;Charging Components Relay;Ladekomponenten;On/Off;N/A - To Charger Circuit;N/A;D54 (A0 Alias);Digital Output;3.3V;Check if A0 is free / suitable for digital.
+INTERFACE;LCD - Chip Select (CS);;;N/A - New Component;N/A;D10;Digital Output;3.3V;RA8876/LT768x
+INTERFACE;LCD - Reset (RST);;;N/A - New Component;N/A;D9;Digital Output;3.3V;RA8876/LT768x
+INTERFACE;LCD - MOSI;;;N/A - New Component;N/A;ICSP-4 (or D11/PA26);SPI;3.3V;RA8876/LT768x
+INTERFACE;LCD - MISO;;;N/A - New Component;N/A;ICSP-1 (or D12/PA25);SPI;3.3V;RA8876/LT768x
+INTERFACE;LCD - SCK;;;N/A - New Component;N/A;ICSP-3 (or D13/PA27);SPI;3.3V;RA8876/LT768x
+INTERFACE;Touch - SDA;;;N/A - New Component;N/A;D20 (SDA / PA17);I2C;3.3V;GT9271
+INTERFACE;Touch - SCL;;;N/A - New Component;N/A;D21 (SCL / PA18);I2C;3.3V;GT9271
+INTERFACE;Touch - Interrupt (INT);;;N/A - New Component;N/A;D3_PWM (PC28);Digital Input;3.3V;GT9271 - Active LOW usually. Used D3.
+INTERFACE;Touch - Reset (RST);;;N/A - New Component;N/A;D5_PWM (PC25);Digital Output;3.3V;GT9271 - Used D5.

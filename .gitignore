@@ -1,0 +1,23 @@
+# Build output
+Ellert/build/
+Ellert/obj/
+__Ellert/obj/
+
+# Visual Studio / IDE files
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Logs and temp files
+*.log
+*_Error.txt
+*.tmp
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*~

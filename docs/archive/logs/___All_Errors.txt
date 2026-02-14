@@ -1,0 +1,7 @@
+CorrelationId: a134f090-a002-47d5-ad97-76565072f819
+UTC DateTime: 02/07/2026 15:30:00
+
+The following files/folders have not been downloaded
+0. Ellert/.vs/Ellert/FileContentIndex/merges/ab8e0aee-a271-42e8-ae53-ae657216e9ba.vsidx
+1. Ellert/obj/ARM64/Release/Ellert.tlog/unsuccessfulbuild
+2. Ellert/add_display_manager.txt

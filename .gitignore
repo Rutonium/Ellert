@@ -2,6 +2,8 @@
 Ellert/build/
 Ellert/obj/
 __Ellert/obj/
+old_cleanded/Ellert/
+old_cleanded/__Ellert/
 
 # Visual Studio / IDE files
 *.VC.db

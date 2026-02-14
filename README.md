@@ -34,4 +34,5 @@ arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:sam:arduino_due_x_dbg --input-
 - `firmware/input_cpu/` - UNO touch input firmware area
 - `firmware/display_cpu/` - display firmware area
 - `shared/protocol/` - cross-CPU message definitions
-- `docs/` - hardware docs, vendor libraries, IO and archives
+- `docs/` - active architecture notes
+- `old_cleanded/` - archived legacy/vendor/IDE files moved out of active tree

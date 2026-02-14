@@ -19,7 +19,9 @@ void AccessoryControl::initialize() {
     
     // --- INPUTS (Stalks/User Panel) ---
     for (int i = 0; i < PinMap::kDigitalCount; ++i) {
-        pinMode(PinMap::digitalInputByIndex(i), INPUT_PULLUP);
+        int pin = PinMap::digitalInputByIndex(i);
+        if (pin < 0) continue;
+        pinMode(pin, INPUT_PULLUP);
     }
 }
 

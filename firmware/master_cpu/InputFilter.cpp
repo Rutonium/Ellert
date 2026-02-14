@@ -17,6 +17,10 @@ void InputFilter::update() {
     
     for (int i = 0; i < PinMap::kDigitalCount; ++i) {
         int pin = PinMap::digitalInputByIndex(i);
+        if (pin < 0) {
+            lastDebounceState[i] = HIGH;
+            continue;
+        }
         int reading = digitalRead(pin); 
 
         if (reading != lastDebounceState[i]) {
@@ -32,6 +36,7 @@ void InputFilter::update() {
 }
 
 int InputFilter::getDebouncedState(int pin) { 
+    if (pin < 0) return HIGH;
     for (int i = 0; i < PinMap::kDigitalCount; ++i) {
         if (PinMap::digitalInputByIndex(i) == pin) {
             return lastDebounceState[i];

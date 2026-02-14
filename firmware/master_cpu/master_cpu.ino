@@ -3,6 +3,7 @@
 #include "AccessoryControl.h"
 #include "DisplayManager.h" // NEW
 #include "SerialDiagnostics.h"
+#include "RemoteInterfaces.h"
 #include "PinMap.h"
 #include "PinRules.h"
 
@@ -27,6 +28,7 @@ void setup() {
     InputFilter::initialize(); 
     displayManager.initialize(); // NEW
     SerialDiagnostics::initialize();
+    RemoteInterfaces::initialize();
 }
 
 void loop() {
@@ -50,4 +52,7 @@ void loop() {
 
     // 5. Publish full board diagnostics to serial for PC mock display
     SerialDiagnostics::update();
+
+    // 6. Handle optional Input/Display CPU links
+    RemoteInterfaces::update();
 }

@@ -26,22 +26,25 @@ Source of truth: `firmware/master_cpu/PinDefinitions.h` (used by `PinMap::applyD
 - `PIN_WASHER_SWITCH = 40`
 - `PIN_HORN_BUTTON = 41`
 - `PIN_DEMISTER_SWITCH = 42`
-- `PIN_TRIP_RESET_BUTTON = 48`
-- `PIN_HEAT_ELEM_1_SW = 49`
-- `PIN_HEAT_ELEM_2_SW = 50`
-- `PIN_FAN_LOW = 51`
-- `PIN_FAN_MID = 33`
-- `PIN_FAN_HIGH = 53`
-- `PIN_AC_OFF_ALL = 55`
-- `PIN_AC_VENT_ONLY = 56`
-- `PIN_AC_HEAT_1 = 57`
-- `PIN_AC_HEAT_2 = 58`
-- `PIN_WIPER_START_USER = 59`
-- `PIN_WIPER_STOP_USER = 60`
-- `PIN_SPRINKLER_USER = 61`
-- `PIN_LIGHTS_NORMAL_USER = 62`
-- `PIN_LIGHTS_HIGH_USER = 63`
-- `PIN_LIGHTS_OFF_USER = 64`
+
+## Inputs Moved To Input CPU (Master Unassigned / Free)
+
+- `PIN_TRIP_RESET_BUTTON = -1` (free pin `D48`)
+- `PIN_HEAT_ELEM_1_SW = -1` (free pin `D49`)
+- `PIN_HEAT_ELEM_2_SW = -1` (free pin `D50`)
+- `PIN_FAN_LOW = -1` (free pin `D51`)
+- `PIN_FAN_MID = -1` (free pin `D33`)
+- `PIN_FAN_HIGH = -1` (free pin `D53`)
+- `PIN_AC_OFF_ALL = -1` (free pin `D55`)
+- `PIN_AC_VENT_ONLY = -1` (free pin `D56`)
+- `PIN_AC_HEAT_1 = -1` (free pin `D57`)
+- `PIN_AC_HEAT_2 = -1` (free pin `D58`)
+- `PIN_WIPER_START_USER = -1` (free pin `D59`)
+- `PIN_WIPER_STOP_USER = -1` (free pin `D60`)
+- `PIN_SPRINKLER_USER = -1` (free pin `D61`)
+- `PIN_LIGHTS_NORMAL_USER = -1` (free pin `D62`)
+- `PIN_LIGHTS_HIGH_USER = -1` (free pin `D63`)
+- `PIN_LIGHTS_OFF_USER = -1` (free pin `D64`)
 
 ## Outputs
 
@@ -62,38 +65,34 @@ Source of truth: `firmware/master_cpu/PinDefinitions.h` (used by `PinMap::applyD
 - `PIN_WIPER_LOW_RELAY = 45`
 - `PIN_WIPER_HIGH_RELAY = 46`
 - `PIN_WASHER_PUMP_RELAY = 47`
-- `PIN_HEATER_ELEM_1_RELAY = 0`
-- `PIN_HEATER_ELEM_2_RELAY = 1`
-- `PIN_HEATER_FAN_RELAY = 3`
+- `PIN_HEATER_ELEM_1_RELAY = 49`
+- `PIN_HEATER_ELEM_2_RELAY = 50`
+- `PIN_HEATER_FAN_RELAY = 51`
 - `PIN_DEMISTER_RELAY = 5`
+
+## Functional Output Mapping (Requested)
+
+- `Daytime running lights` -> `PIN_PARKING_LIGHTS_RELAY (D8)`
+- `Front Near` -> `PIN_HEADLIGHTS_RELAY (D6)`
+- `Front High Beam` -> `PIN_HIGH_BEAMS_RELAY (D7)`
+- `Indicator Left` -> `PIN_IND_LEFT_RELAY (D14)`
+- `Indicator Right` -> `PIN_IND_RIGHT_RELAY (D15)`
+- `Brake light` -> `PIN_BRAKE_LIGHTS_RELAY (D4)`
+- `Horn` -> `PIN_HORN_RELAY (D16)`
+- `Sprinkler On` -> `PIN_WASHER_PUMP_RELAY (D47)`
+- `Wiper intermittent` -> `PIN_WIPER_INT_RELAY (D44)`
+- `Wiper Normal` -> `PIN_WIPER_LOW_RELAY (D45)`
+- `Wiper Fast` -> `PIN_WIPER_HIGH_RELAY (D46)`
+- `Ventilation Low` -> `PIN_HEATER_ELEM_1_RELAY (D49)`
+- `Ventilation Mid` -> `PIN_HEATER_ELEM_2_RELAY (D50)`
+- `Ventilation High` -> `PIN_HEATER_FAN_RELAY (D51)`
 
 ## Notes
 
 - `D0/D1` are UART0 serial pins on Arduino Due. Firmware currently protects these from accessory output driving to keep Programming Port serial diagnostics working.
 - If you later add persistent EEPROM/flash mapping and the board has stored overrides, defaults in this file will not apply until defaults are restored.
 
-## trykknap-panel Discovery (User Confirmed)
+## Input CPU Notes
 
-User confirmed panel-input-related pins:
-
-- `37, 39, 41, 43, 45, 47, 49, 50, 51, 52, 53`
-
-Current firmware status:
-
-- Configured as **digital inputs**:
-  - `D37` (`PIN_WIPER_STALK_LOW`)
-  - `D39` (`PIN_WIPER_STALK_INT`)
-  - `D41` (`PIN_HORN_BUTTON`)
-  - `D49` (`PIN_HEAT_ELEM_1_SW`)
-  - `D50` (`PIN_HEAT_ELEM_2_SW`)
-  - `D51` (`PIN_FAN_LOW`)
-  - `D52` (`PIN_LIGHTS_STALK_PARKING`)
-  - `D53` (`PIN_FAN_HIGH`)
-- Currently configured as **outputs** (not inputs):
-  - `D43` (`PIN_CHARGING_RELAY`)
-  - `D45` (`PIN_WIPER_LOW_RELAY`)
-  - `D47` (`PIN_WASHER_PUMP_RELAY`)
-
-Naming update applied:
-
-- Relevant input labels now use prefix `trykknap-panel ...` in `PinMap::digitalInputLabel`.
+- User panel controls now come from `Input CPU` command frames.
+- Master CPU keeps only physical fail-safe/stalk inputs as direct GPIO inputs.

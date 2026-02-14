@@ -43,6 +43,10 @@ Whenever a pin mapping, board behavior, dependency, build parameter, or deployme
   - Panel-input prefix requested: `trykknap-panel`
   - Applied to matching configured input labels in `PinMap::digitalInputLabel`
   - User-provided pin list recorded in `INPUT_OUTPUT_MAP.md` with input/output status for each pin.
+- Latest architecture mapping update:
+  - Master user-panel GPIO inputs moved to `Input CPU` (set to unassigned `-1` in `PinDefinitions.h`).
+  - Ventilation outputs remapped to `D49`, `D50`, `D51`.
+  - Functional output mapping documented in `INPUT_OUTPUT_MAP.md`.
 
 ## Why EEPROM Shim Exists
 

@@ -31,3 +31,8 @@ Shared header location:
 
 Current frame concept:
 - `SOF | version | type | seq | len | payload | crc8`
+
+Current skeleton implementation:
+- `firmware/master_cpu/RemoteInterfaces.*`
+- `firmware/input_cpu/input_cpu.ino`
+- `firmware/display_cpu/display_cpu.ino`

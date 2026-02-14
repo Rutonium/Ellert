@@ -36,22 +36,23 @@ const int PIN_HORN_BUTTON = 41;
 const int PIN_DEMISTER_SWITCH = 42;  
 
 // --- 1.3. USER PANEL SWITCHES (3.3V) ---
-const int PIN_TRIP_RESET_BUTTON = 48; 
-const int PIN_HEAT_ELEM_1_SW = 49;       // D49 (SW to differentiate from RELAY)
-const int PIN_HEAT_ELEM_2_SW = 50;       // D50 
-const int PIN_FAN_LOW = 51;           
-const int PIN_FAN_MID = 33;           // moved to keep unique input pin assignment
-const int PIN_FAN_HIGH = 53;          
-const int PIN_AC_OFF_ALL = 55;        // A1 (D55)
-const int PIN_AC_VENT_ONLY = 56;      // A2 (D56)
-const int PIN_AC_HEAT_1 = 57;         // A3 (D57)
-const int PIN_AC_HEAT_2 = 58;         // A4 (D58)
-const int PIN_WIPER_START_USER = 59;  // A5 (D59)
-const int PIN_WIPER_STOP_USER = 60;   // A6 (D60)
-const int PIN_SPRINKLER_USER = 61;    // A7 (D61)
-const int PIN_LIGHTS_NORMAL_USER = 62; // A8 (D62)
-const int PIN_LIGHTS_HIGH_USER = 63;  // A9 (D63)
-const int PIN_LIGHTS_OFF_USER = 64;   // A10 (D64)
+// Moved to Input CPU touchscreen grid. Keep these unassigned on Master CPU.
+const int PIN_TRIP_RESET_BUTTON = -1;
+const int PIN_HEAT_ELEM_1_SW = -1;
+const int PIN_HEAT_ELEM_2_SW = -1;
+const int PIN_FAN_LOW = -1;
+const int PIN_FAN_MID = -1;
+const int PIN_FAN_HIGH = -1;
+const int PIN_AC_OFF_ALL = -1;
+const int PIN_AC_VENT_ONLY = -1;
+const int PIN_AC_HEAT_1 = -1;
+const int PIN_AC_HEAT_2 = -1;
+const int PIN_WIPER_START_USER = -1;
+const int PIN_WIPER_STOP_USER = -1;
+const int PIN_SPRINKLER_USER = -1;
+const int PIN_LIGHTS_NORMAL_USER = -1;
+const int PIN_LIGHTS_HIGH_USER = -1;
+const int PIN_LIGHTS_OFF_USER = -1;
 
 
 // ====================================================================================
@@ -85,9 +86,9 @@ const int PIN_WASHER_PUMP_RELAY = 47;       // D47 (SSR4-R4)
 // --- 2.4. HEATING & DEFROST OUTPUTS (Need a 5th SSR board for these) ---
 // NOTE: These defaults avoid conflicts with input pins, but they use Serial/Touch pins.
 // If you use Serial or the touch interface, move these to free pins in your wiring map.
-const int PIN_HEATER_ELEM_1_RELAY = 0;      // D0 (Serial RX0)
-const int PIN_HEATER_ELEM_2_RELAY = 1;      // D1 (Serial TX0)
-const int PIN_HEATER_FAN_RELAY = 3;         // D3 (Touch INT reserved)
+const int PIN_HEATER_ELEM_1_RELAY = 49;     // D49 (used as Ventilation Low output)
+const int PIN_HEATER_ELEM_2_RELAY = 50;     // D50 (used as Ventilation Mid output)
+const int PIN_HEATER_FAN_RELAY = 51;        // D51 (used as Ventilation High output)
 const int PIN_DEMISTER_RELAY = 5;           // D5 (Touch RESET reserved)
 
 // --- 2.5. LCD/TOUCH INTERFACE PINS (Reserved) ---

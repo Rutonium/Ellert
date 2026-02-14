@@ -195,35 +195,46 @@ bool PinMap::validateNoConflicts() {
     // Analog duplicates
     for (int i = 0; i < kAnalogCount; ++i) {
         const int pinI = g_data.analogPins[i];
+        if (pinI < 0) continue;
         for (int j = i + 1; j < kAnalogCount; ++j) {
+            if (g_data.analogPins[j] < 0) continue;
             if (pinI == g_data.analogPins[j]) ok = false;
         }
     }
     // Analog vs digital
     for (int i = 0; i < kAnalogCount; ++i) {
         const int pinI = g_data.analogPins[i];
+        if (pinI < 0) continue;
         for (int j = 0; j < kDigitalCount; ++j) {
+            if (g_data.digitalPins[j] < 0) continue;
             if (pinI == g_data.digitalPins[j]) ok = false;
         }
         for (int j = 0; j < kOutputCount; ++j) {
+            if (g_data.outputPins[j] < 0) continue;
             if (pinI == g_data.outputPins[j]) ok = false;
         }
     }
     for (int i = 0; i < kDigitalCount; ++i) {
         const int pinI = g_data.digitalPins[i];
+        if (pinI < 0) continue;
         for (int j = i + 1; j < kDigitalCount; ++j) {
+            if (g_data.digitalPins[j] < 0) continue;
             if (pinI == g_data.digitalPins[j]) ok = false;
         }
     }
     for (int i = 0; i < kOutputCount; ++i) {
         const int pinI = g_data.outputPins[i];
+        if (pinI < 0) continue;
         for (int j = i + 1; j < kOutputCount; ++j) {
+            if (g_data.outputPins[j] < 0) continue;
             if (pinI == g_data.outputPins[j]) ok = false;
         }
     }
     for (int i = 0; i < kDigitalCount; ++i) {
         const int pinI = g_data.digitalPins[i];
+        if (pinI < 0) continue;
         for (int j = 0; j < kOutputCount; ++j) {
+            if (g_data.outputPins[j] < 0) continue;
             if (pinI == g_data.outputPins[j]) ok = false;
         }
     }
@@ -231,25 +242,31 @@ bool PinMap::validateNoConflicts() {
 }
 
 bool PinMap::wouldConflict(bool isOutput, int index, int proposedPin) {
+    if (proposedPin < 0) return false;
     // Check conflicts with analog
     for (int i = 0; i < kAnalogCount; ++i) {
+        if (g_data.analogPins[i] < 0) continue;
         if (g_data.analogPins[i] == proposedPin) return true;
     }
 
     if (isOutput) {
         for (int i = 0; i < kOutputCount; ++i) {
             if (i == index) continue;
+            if (g_data.outputPins[i] < 0) continue;
             if (g_data.outputPins[i] == proposedPin) return true;
         }
         for (int i = 0; i < kDigitalCount; ++i) {
+            if (g_data.digitalPins[i] < 0) continue;
             if (g_data.digitalPins[i] == proposedPin) return true;
         }
     } else {
         for (int i = 0; i < kDigitalCount; ++i) {
             if (i == index) continue;
+            if (g_data.digitalPins[i] < 0) continue;
             if (g_data.digitalPins[i] == proposedPin) return true;
         }
         for (int i = 0; i < kOutputCount; ++i) {
+            if (g_data.outputPins[i] < 0) continue;
             if (g_data.outputPins[i] == proposedPin) return true;
         }
     }
@@ -257,14 +274,18 @@ bool PinMap::wouldConflict(bool isOutput, int index, int proposedPin) {
 }
 
 bool PinMap::wouldConflictAnalog(int index, int proposedPin) {
+    if (proposedPin < 0) return false;
     for (int i = 0; i < kAnalogCount; ++i) {
         if (i == index) continue;
+        if (g_data.analogPins[i] < 0) continue;
         if (g_data.analogPins[i] == proposedPin) return true;
     }
     for (int i = 0; i < kDigitalCount; ++i) {
+        if (g_data.digitalPins[i] < 0) continue;
         if (g_data.digitalPins[i] == proposedPin) return true;
     }
     for (int i = 0; i < kOutputCount; ++i) {
+        if (g_data.outputPins[i] < 0) continue;
         if (g_data.outputPins[i] == proposedPin) return true;
     }
     return false;

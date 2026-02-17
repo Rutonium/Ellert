@@ -26,3 +26,7 @@ Message payload format for `MSG_INPUT_STATE`:
 3. byte2: pressed mask high byte
 4. byte3: event command id (`0..15`, or `0xFF` for periodic state frame)
 5. byte4: event type (`0=none`, `1=press`, `2=release`)
+
+Current deployment note:
+- This command map is implemented on ESP32-S3 target `firmware/input_cpu_esp32s3/`.
+- End-to-end master link test is pending physical UART cabling (JST 1.25 connectors).

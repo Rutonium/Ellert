@@ -96,3 +96,42 @@ Source of truth: `firmware/master_cpu/PinDefinitions.h` (used by `PinMap::applyD
 
 - User panel controls now come from `Input CPU` command frames.
 - Master CPU keeps only physical fail-safe/stalk inputs as direct GPIO inputs.
+
+## ESP32 Master Target (New)
+
+Source: `firmware/master_cpu_esp32/master_cpu_esp32.ino`
+
+Serial links:
+- `UART1` (Input CPU): `RX=GPIO16`, `TX=GPIO17`
+- `UART2` (Display CPU): `RX=GPIO18`, `TX=GPIO19`
+
+Physical header mapping on `2A54N-ESP32`:
+- `GPIO16` -> header pin `27`
+- `GPIO17` -> header pin `28`
+- `GPIO18` -> header pin `30`
+- `GPIO19` -> header pin `31`
+
+Status:
+- Software mapping verified.
+- Physical interconnect pending `JST Micro 1.25` cables for JC3248 display board UART connectors.
+
+Inputs:
+- `Ignition` -> `GPIO32` (pull-up, active low)
+- `Brake pedal` -> `GPIO35` (pull-up, active low)
+- `Pedal analog` -> `GPIO34` (ADC)
+
+Outputs:
+- `Daytime running lights` -> `GPIO2`
+- `Front Near` -> `GPIO4`
+- `Front High Beam` -> `GPIO5`
+- `Indicator Left` -> `GPIO21`
+- `Indicator Right` -> `GPIO22`
+- `Brake light` -> `GPIO23`
+- `Horn` -> `GPIO25`
+- `Sprinkler On` -> `GPIO26`
+- `Wiper intermittent` -> `GPIO27`
+- `Wiper Normal` -> `GPIO14`
+- `Wiper Fast` -> `GPIO13`
+- `Ventilation Low` -> `GPIO12`
+- `Ventilation Mid` -> `GPIO15`
+- `Ventilation High` -> `GPIO33`

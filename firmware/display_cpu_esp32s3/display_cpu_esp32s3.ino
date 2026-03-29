@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
+#include <math.h>
 
 #include "board_config.h"
 #include "protocol_v1.h"
@@ -23,10 +24,20 @@ uint32_t gLastHeartbeatTxMs = 0;
 uint32_t gLastMasterHeartbeatMs = 0;
 uint32_t gLastStatusRxMs = 0;
 uint32_t gLastDebugMs = 0;
+uint32_t gLastRenderMs = 0;
 uint32_t gHbTxCount = 0;
 uint32_t gHbRxCount = 0;
 uint32_t gStatusRxCount = 0;
-constexpr bool kShowLinkTestScreen = true;
+constexpr bool kShowLinkTestScreen = false;
+constexpr bool kEnableSerialDebug = false;
+constexpr uint32_t kRenderPeriodMs = 33; // ~30 FPS cap to reduce flicker/power spikes.
+constexpr float kSmoothSpeedAlpha = 0.25f;
+constexpr float kSmoothPowerAlpha = 0.30f;
+bool gUiDirty = true;
+bool gLastBlinkPhase = false;
+float gSmoothSpeed = 0.0f;
+float gSmoothPowerAsked = 0.0f;
+float gSmoothPowerUsed = 0.0f;
 
 struct DashboardState {
   uint8_t speedKmt = 0;
@@ -83,6 +94,7 @@ void applyStatusSnapshot(const Frame &frame) {
   gState.inputMask = static_cast<uint16_t>(frame.payload[16]) |
                      (static_cast<uint16_t>(frame.payload[17]) << 8);
   gLastStatusRxMs = millis();
+  gUiDirty = true;
 }
 
 void pollMaster() {
@@ -101,6 +113,7 @@ void pollMaster() {
 }
 
 void debugIfDue() {
+  if (!kEnableSerialDebug) return;
   const uint32_t now = millis();
   if (now - gLastDebugMs < 1000) return;
   gLastDebugMs = now;
@@ -130,6 +143,9 @@ void drawDashboard() {
   const int W = gGfx->width();
   const int H = gGfx->height();
   const bool blink = ((millis() / 700UL) % 2UL) == 0;
+  const uint8_t speedShown = static_cast<uint8_t>(gSmoothSpeed + 0.5f);
+  const uint8_t powerAskShown = static_cast<uint8_t>(gSmoothPowerAsked + 0.5f);
+  const int8_t powerUsedShown = static_cast<int8_t>(gSmoothPowerUsed);
 
   gGfx->fillScreen(RGB565_BLACK);
   gGfx->fillRoundRect(6, 6, W - 12, 50, 8, 0x18C3);
@@ -149,7 +165,7 @@ void drawDashboard() {
   gGfx->setCursor(304, 82); gGfx->print(">");
 
   char speedBuf[8];
-  snprintf(speedBuf, sizeof(speedBuf), "%u", static_cast<unsigned>(gState.speedKmt));
+  snprintf(speedBuf, sizeof(speedBuf), "%u", static_cast<unsigned>(speedShown));
   gGfx->setTextSize(7);
   gGfx->setCursor(198, 130); gGfx->print(speedBuf);
   gGfx->setTextSize(2);
@@ -166,15 +182,15 @@ void drawDashboard() {
   gGfx->setCursor(92, 136);
   gGfx->print(gState.socPct); gGfx->print("%");
 
-  int askH = map(gState.powerAskedPct, 0, 100, 0, 118);
-  int usedAbs = gState.powerUsedPct < 0 ? -gState.powerUsedPct : gState.powerUsedPct;
+  int askH = map(powerAskShown, 0, 100, 0, 118);
+  int usedAbs = powerUsedShown < 0 ? -powerUsedShown : powerUsedShown;
   int usedH = map(usedAbs, 0, 100, 0, 118);
   gGfx->drawRect(356, 118, 32, 122, RGB565_WHITE);
   gGfx->drawRect(408, 118, 32, 122, RGB565_WHITE);
   gGfx->fillRect(358, 120, 28, 118, RGB565_BLACK);
   gGfx->fillRect(410, 120, 28, 118, RGB565_BLACK);
   gGfx->fillRect(358, 238 - askH, 28, askH, RGB565_CYAN);
-  gGfx->fillRect(410, 238 - usedH, 28, usedH, (gState.powerUsedPct < 0) ? RGB565_GREEN : 0xFD20);
+  gGfx->fillRect(410, 238 - usedH, 28, usedH, (powerUsedShown < 0) ? RGB565_GREEN : 0xFD20);
   gGfx->setTextSize(1);
   gGfx->setCursor(362, 244); gGfx->print("ASK");
   gGfx->setCursor(414, 244); gGfx->print("USED");
@@ -273,6 +289,10 @@ void setup() {
 
   gLastMasterHeartbeatMs = millis();
   gLastStatusRxMs = millis();
+  gSmoothSpeed = static_cast<float>(gState.speedKmt);
+  gSmoothPowerAsked = static_cast<float>(gState.powerAskedPct);
+  gSmoothPowerUsed = static_cast<float>(gState.powerUsedPct);
+  gLastBlinkPhase = ((millis() / 700UL) % 2UL) == 0;
   if (kShowLinkTestScreen) {
     drawLinkTestScreen();
   } else {
@@ -286,11 +306,37 @@ void loop() {
   pollMaster();
   sendHeartbeatIfDue();
   debugIfDue();
-  if (kShowLinkTestScreen) {
-    drawLinkTestScreen();
-  } else {
-    drawDashboard();
+
+  const uint32_t now = millis();
+  const bool blink = ((now / 700UL) % 2UL) == 0;
+  if (blink != gLastBlinkPhase) {
+    gLastBlinkPhase = blink;
+    gUiDirty = true;
   }
+
+  const float targetSpeed = static_cast<float>(gState.speedKmt);
+  const float targetAsk = static_cast<float>(gState.powerAskedPct);
+  const float targetUsed = static_cast<float>(gState.powerUsedPct);
+  gSmoothSpeed += (targetSpeed - gSmoothSpeed) * kSmoothSpeedAlpha;
+  gSmoothPowerAsked += (targetAsk - gSmoothPowerAsked) * kSmoothPowerAlpha;
+  gSmoothPowerUsed += (targetUsed - gSmoothPowerUsed) * kSmoothPowerAlpha;
+
+  const bool smoothingActive =
+      (fabsf(gSmoothSpeed - targetSpeed) > 0.5f) ||
+      (fabsf(gSmoothPowerAsked - targetAsk) > 0.5f) ||
+      (fabsf(gSmoothPowerUsed - targetUsed) > 0.5f);
+  if (smoothingActive) gUiDirty = true;
+
+  if (gUiDirty && (now - gLastRenderMs) >= kRenderPeriodMs) {
+    gLastRenderMs = now;
+    if (kShowLinkTestScreen) {
+      drawLinkTestScreen();
+    } else {
+      drawDashboard();
+    }
+    gUiDirty = false;
+  }
+
   digitalWrite(LED_BUILTIN, (millis() - gLastMasterHeartbeatMs) <= kNodeOfflineTimeoutMs ? HIGH : LOW);
-  delay(120);
+  delay(5);
 }

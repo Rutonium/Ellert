@@ -64,9 +64,11 @@ Whenever a pin mapping, board behavior, dependency, build parameter, or deployme
   - `firmware/master_cpu_esp32/` (FQBN `esp32:esp32:esp32`)
   - `firmware/input_cpu_esp32s3/` (FQBN `esp32:esp32:esp32s3`)
   - `firmware/display_cpu_esp32s3/` (FQBN `esp32:esp32:esp32s3`)
-- Added libraries for ESP32 UI stack:
-  - `lvgl 9.4.0`
-  - `TFT_eSPI 2.5.43`
+- Active libraries for ESP32 JC3248 runtime stack:
+  - `GFX Library for Arduino` (`Arduino_GFX`, `Arduino_AXS15231B`, `Arduino_Canvas`)
+  - `Wire` (built-in; touch controller bus path)
+- Optional/experimental (not runtime-critical):
+  - `LovyanGFX` (lab-only target: `firmware/display_cpu_esp32s3_lgfx_lab/`)
 - Added troubleshooting libraries (installed locally):
   - `TCA9554 0.1.2`
   - `XPowersLib 0.2.9`
@@ -119,6 +121,22 @@ This section is now authoritative for the two display boards.
 - Display-side link counters confirmed:
   - Heartbeat TX/RX active.
   - Status snapshot RX active.
+- Power-path finding:
+  - Backlight pulsation was observed when both displays were powered from master ESP32 `5V`.
+  - Pulsation stopped when display USB power was connected.
+  - Conclusion: use dedicated external `5V` power for both displays in runtime.
+
+Display firmware split (fail-safe path):
+- Stable runtime target: `firmware/display_cpu_esp32s3/` (Arduino_GFX).
+- Isolated diagnostics target: `firmware/display_cpu_esp32s3_lgfx_lab/` (LovyanGFX gates A/B/C only).
+- Experimental target: `firmware/display_cpu_esp32s3_lvgl/` (not used for runtime until re-validated).
+- Dedicated scripts:
+  - `tools/flash_display_stable.sh`
+  - `tools/flash_display_lgfx_lab.sh`
+- Current known-good flash action (2026-03-29): stable display firmware uploaded to `/dev/ttyACM1`.
+
+Input firmware runtime target:
+- `firmware/input_cpu_esp32s3/` (Arduino_GFX on JC3248W535, UART link to master).
 
 Color-based wiring standard for both encased display boards (canonical):
 - `Green` = `GND`
@@ -140,6 +158,19 @@ Master-side wire hookups:
 - Both nodes:
   - `Green` -> `GND` (recommended pin `32`)
   - `Red` -> `Vin 5V` pin `19` (or external 5V with common GND)
+
+### Display Power Topology (Canonical)
+
+Recommended:
+- Power both display boards from a dedicated stable external `5V` rail.
+- Keep UART signal wiring unchanged.
+- Keep a shared common GND across:
+  - master ESP32
+  - external 5V supply
+  - both display boards
+
+Current planning target:
+- At least `2A` available for both display boards combined (extra headroom preferred).
 
 ### Required ESP32 Upload Profile (Critical)
 
@@ -261,7 +292,7 @@ arduino-cli core update-index
 arduino-cli core install arduino:sam
 arduino-cli lib install "Adafruit GFX Library" "Adafruit RA8875" "Adafruit BusIO"
 arduino-cli core install esp32:esp32
-arduino-cli lib install lvgl TFT_eSPI
+arduino-cli lib install "GFX Library for Arduino"
 ```
 
 3. Ensure serial port permissions:

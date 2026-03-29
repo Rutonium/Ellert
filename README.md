@@ -9,8 +9,13 @@ Current architecture:
 
 New ESP32 targets now added in parallel:
 - `firmware/master_cpu_esp32/` (ESP32 main controller, UART star topology)
-- `firmware/input_cpu_esp32s3/` (ESP32-S3 LVGL + TFT_eSPI input UI)
-- `firmware/display_cpu_esp32s3/` (ESP32-S3 LVGL + TFT_eSPI display UI)
+- `firmware/input_cpu_esp32s3/` (ESP32-S3 stable runtime input UI, Arduino_GFX path)
+- `firmware/display_cpu_esp32s3/` (ESP32-S3 stable runtime display UI, Arduino_GFX path)
+- `firmware/display_cpu_esp32s3_lgfx_lab/` (isolated LovyanGFX bring-up lab target)
+
+Active display/input stack for both JC3248 boards:
+- `Arduino_GFX` (`Arduino_ESP32QSPI` + `Arduino_AXS15231B` + `Arduino_Canvas`)
+- `Wire` reserved for touch controller path (`SDA=4`, `SCL=8`, addr `0x3B`)
 
 ## Current Decisions
 
@@ -44,6 +49,23 @@ Master board connection for input display link (current mapping):
 - `Yellow` (input display `RX`) -> master header pin `31` (`GPIO19`, master `TX`)
 - `Green` (input display `GND`) -> master `GND` (recommended header pin `32`; `14` or `38` also GND)
 - `Red` (input display `+5V`) -> master `Vin 5V` header pin `19` (or external 5V supply with common GND)
+
+## Power Guidance (Important)
+
+Observed behavior during integration:
+- When both display boards were powered from the master ESP32 `5V`, backlight pulsation occurred.
+- Pulsation stopped when display USB power was connected, indicating power-path/current limitation.
+
+Recommended runtime power topology:
+- Use a dedicated, stable external `5V` supply for both display boards.
+- Keep UART wiring unchanged.
+- Keep a common ground between:
+  - external `5V` supply
+  - master ESP32
+  - both display boards
+
+Current planning target:
+- Budget at least `2A` total for both display boards combined (more headroom preferred).
 
 ## Process Status
 
@@ -98,14 +120,26 @@ With full flash erase:
 ./tools/flash_jc3248_nodes.sh --erase
 ```
 
+Display-only fail-safe commands:
+
+```bash
+# Flash known-good stable display firmware (recommended runtime target)
+./tools/flash_display_stable.sh
+
+# Flash isolated LGFX lab target (diagnostics/bring-up only)
+./tools/flash_display_lgfx_lab.sh
+```
+
 ## Repository Layout
 
 - `firmware/master_cpu/` - active Arduino Due firmware
 - `firmware/input_cpu/` - temporary UNO touch input firmware
 - `firmware/display_cpu/` - temporary UNO display firmware
 - `firmware/master_cpu_esp32/` - new ESP32 master target
-- `firmware/input_cpu_esp32s3/` - new ESP32-S3 LVGL input target
-- `firmware/display_cpu_esp32s3/` - new ESP32-S3 LVGL display target
+- `firmware/input_cpu_esp32s3/` - stable ESP32-S3 runtime input target
+- `firmware/display_cpu_esp32s3/` - stable ESP32-S3 runtime display target
+- `firmware/display_cpu_esp32s3_lgfx_lab/` - isolated LovyanGFX display lab target
+- `firmware/display_cpu_esp32s3_lvgl/` - experimental LVGL path (not runtime target)
 - `shared/protocol/` - cross-CPU message definitions
 - `docs/` - active architecture notes
 - `JC3248W535EN_Touch_LCD-0.9.5/` - local display/touch reference package added to repo

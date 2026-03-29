@@ -116,6 +116,21 @@ Status:
 - Software mapping verified.
 - Physical interconnect verified in runtime (`input=ON`, `display=ON` from master diagnostics).
 
+## JC3248 Firmware Stack (Runtime Canonical)
+
+- Board model: `Guition JC3248W535` (both input and display nodes)
+- Display driver stack: `Arduino_GFX` with:
+  - `Arduino_ESP32QSPI`
+  - `Arduino_AXS15231B`
+  - `Arduino_Canvas`
+- Touch bus path (reserved/known): `Wire` I2C on `SDA=4`, `SCL=8`, touch addr `0x3B`
+- Runtime firmware targets:
+  - `firmware/input_cpu_esp32s3/`
+  - `firmware/display_cpu_esp32s3/`
+- Experimental targets (not runtime canonical):
+  - `firmware/display_cpu_esp32s3_lgfx_lab/`
+  - `firmware/display_cpu_esp32s3_lvgl/`
+
 ## Communication (Display Boards, Color-Based Standard)
 
 Displays are encased, so the cable color mapping is the canonical reference for both display boards:

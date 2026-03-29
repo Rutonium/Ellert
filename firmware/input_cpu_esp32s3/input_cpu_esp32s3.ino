@@ -57,6 +57,21 @@ Decoder gDecoder;
 uint8_t gSeq = 0;
 uint32_t gLastHeartbeatTxMs = 0;
 uint32_t gLastMasterHeartbeatMs = 0;
+uint32_t gLastStatusRxMs = 0;
+uint32_t gLastStatusDrawMs = 0;
+uint32_t gLastRenderMs = 0;
+uint8_t gSpeedKmt = 0;
+uint8_t gSocPct = 0;
+uint8_t gGear = GEAR_UNKNOWN;
+bool gMasterOnline = false;
+bool gUiDirty = true;
+constexpr uint32_t kStatusRenderPeriodMs = 100;
+
+#if defined(ARDUINO_ARCH_ESP32)
+constexpr uint16_t kBacklightPwmHz = 19500;
+constexpr uint8_t kBacklightPwmBits = 8;
+constexpr uint8_t kBacklightDuty = 255;
+#endif
 
 void sendFrame(uint8_t type, const uint8_t *payload, uint8_t len) {
   uint8_t buffer[kMaxPayloadLen + kFrameOverhead];
@@ -76,8 +91,21 @@ void pollMaster() {
   while (Serial1.available() > 0) {
     const uint8_t b = static_cast<uint8_t>(Serial1.read());
     Frame frame;
-    if (gDecoder.feed(b, frame) && frame.type == MSG_HEARTBEAT) {
+    if (!gDecoder.feed(b, frame)) {
+      continue;
+    }
+    if (frame.type == MSG_HEARTBEAT) {
       gLastMasterHeartbeatMs = millis();
+      gUiDirty = true;
+      continue;
+    }
+    if (frame.type == MSG_STATUS_SNAPSHOT && frame.len >= kStatusPayloadLen) {
+      gLastStatusRxMs = millis();
+      gLastMasterHeartbeatMs = millis();
+      gSpeedKmt = frame.payload[0];
+      gSocPct = frame.payload[1];
+      gGear = frame.payload[7];
+      gUiDirty = true;
     }
   }
 }
@@ -112,14 +140,39 @@ void drawGrid() {
   gGfx->flush();
 }
 
+const char *gearLabel(uint8_t gear) {
+  switch (gear) {
+    case GEAR_P: return "P";
+    case GEAR_R: return "R";
+    case GEAR_N: return "N";
+    case GEAR_D: return "D";
+    default: return "-";
+  }
+}
+
 void drawStatus() {
-  const bool online = (millis() - gLastMasterHeartbeatMs) <= kNodeOfflineTimeoutMs;
-  gGfx->fillRect(0, 0, gGfx->width(), 14, RGB565_BLACK);
+  const uint32_t now = millis();
+  const bool online = (now - gLastMasterHeartbeatMs) <= kNodeOfflineTimeoutMs;
+  const bool statusFresh = (now - gLastStatusRxMs) <= 1500;
+  if (online == gMasterOnline && !gUiDirty && (now - gLastStatusDrawMs) < 500) return;
+  gMasterOnline = online;
+  gLastStatusDrawMs = now;
+
+  gGfx->fillRect(0, 0, gGfx->width(), 22, RGB565_BLACK);
   gGfx->setTextColor(online ? RGB565_GREEN : RGB565_RED);
   gGfx->setTextSize(1);
   gGfx->setCursor(2, 2);
   gGfx->print(online ? "MASTER:ONLINE" : "MASTER:OFFLINE");
+  gGfx->setTextColor(statusFresh ? RGB565_CYAN : 0xC618);
+  gGfx->setCursor(150, 2);
+  gGfx->print("SPD ");
+  gGfx->print(gSpeedKmt);
+  gGfx->print("  SOC ");
+  gGfx->print(gSocPct);
+  gGfx->print("%  G ");
+  gGfx->print(gearLabel(gGear));
   gGfx->flush();
+  gUiDirty = false;
 }
 
 } // namespace
@@ -129,8 +182,13 @@ void setup() {
   Serial1.begin(115200, SERIAL_8N1, kMasterUartRxPin, kMasterUartTxPin);
 
   pinMode(LED_BUILTIN, OUTPUT);
+#if defined(ARDUINO_ARCH_ESP32)
+  ledcAttach(kBacklightPin, kBacklightPwmHz, kBacklightPwmBits);
+  ledcWrite(kBacklightPin, kBacklightOnLevel ? kBacklightDuty : 0);
+#else
   pinMode(kBacklightPin, OUTPUT);
   digitalWrite(kBacklightPin, kBacklightOnLevel);
+#endif
 
   if (!gGfx->begin()) {
     while (true) delay(1000);
@@ -142,9 +200,13 @@ void setup() {
 }
 
 void loop() {
+  const uint32_t now = millis();
   pollMaster();
   sendHeartbeatIfDue();
-  drawStatus();
+  if (gUiDirty || (now - gLastRenderMs) >= kStatusRenderPeriodMs) {
+    gLastRenderMs = now;
+    drawStatus();
+  }
   digitalWrite(LED_BUILTIN, (millis() - gLastMasterHeartbeatMs) <= kNodeOfflineTimeoutMs ? HIGH : LOW);
-  delay(80);
+  delay(5);
 }

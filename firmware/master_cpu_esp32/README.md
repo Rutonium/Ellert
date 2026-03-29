@@ -11,8 +11,8 @@ Current scope:
 
 ## Default pin plan (adjust as needed)
 
-- UART1 Input CPU: `RX=16`, `TX=17`
-- UART2 Display CPU: `RX=18`, `TX=19`
+- Input CPU link (currently `HardwareSerial(1)`): `RX=18`, `TX=19` (header pins `30/31`)
+- Display CPU link (currently `HardwareSerial(2)`): `RX=16`, `TX=17` (header pins `27/28`)
 
 Outputs:
 - `GPIO2` Daytime running lights

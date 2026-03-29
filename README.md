@@ -80,6 +80,30 @@ Implemented:
   - gear indicator inside speed box
   - indicator demo blink (`0.7s ON / 0.7s OFF`) with yellow active-circle
   - top-left time and `km/t` speed unit
+- Display map Phase A scaffold on stable runtime target:
+  - animated map grid background
+  - center vehicle marker and route stub
+  - live telemetry HUD (speed, SOC, gear, HB/ST/IN link state)
+- Master-to-display GPS bridge:
+  - status payload extended with `lat/lon/heading/fix/sats`
+  - master accepts `GPS <lat> <lon> [heading] [sats]` over USB serial
+  - display map follows injected coordinates and draws movement trail
+- Wi-Fi prototype services on master:
+  - local-only credentials via `firmware/master_cpu_esp32/wifi_local.h` (git-ignored)
+  - NTP sync available with `NTP?`
+  - online tile fetch prototype available with `TILETEST <z> <x> <y>`
+- Display Phase 2 tile prototype:
+  - local-only Wi-Fi credentials via `firmware/display_cpu_esp32s3/wifi_local.h` (git-ignored)
+  - OSM tile download + PNG decode (`PNGdec`) on display node
+  - 3x3 tile neighborhood render in map screen
+  - LittleFS disk cache for tile reuse
+  - non-destructive FS mount (`LittleFS.begin(false)`) so normal flashes do not wipe tile cache
+  - fetch cadence limit (~1 tile/1.2s)
+  - attribution footer `(c)OSM`
+  - zoom control path: `MAP -`/`MAP +` (input command map) and `MAPZOOM <0..19>` on master console
+  - current runtime visuals: grayscale map tiles, default zoom `17`
+- Boot GPS seed on master:
+  - on boot, master publishes default fix `55.527450, 8.470522` so map starts rendering immediately after reboot/flash
 
 Next session:
 1. Fine-tune dashboard/input UX now that UART links are stable.
@@ -103,8 +127,8 @@ That file is the single source of truth for:
 From repo root:
 
 ```bash
-arduino-cli compile --fqbn arduino:sam:arduino_due_x_dbg --export-binaries firmware/master_cpu
-arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:sam:arduino_due_x_dbg --input-dir firmware/master_cpu/build/arduino.sam.arduino_due_x_dbg firmware/master_cpu
+arduino-cli compile --fqbn esp32:esp32:esp32 --export-binaries firmware/master_cpu_esp32
+arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32 firmware/master_cpu_esp32
 ```
 
 JC3248 ESP32-S3 UI nodes (Input + Display):
@@ -128,6 +152,13 @@ Display-only fail-safe commands:
 
 # Flash isolated LGFX lab target (diagnostics/bring-up only)
 ./tools/flash_display_lgfx_lab.sh
+```
+
+Legacy Arduino Due commands (kept for old target only):
+
+```bash
+arduino-cli compile --fqbn arduino:sam:arduino_due_x_dbg --export-binaries firmware/master_cpu
+arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:sam:arduino_due_x_dbg --input-dir firmware/master_cpu/build/arduino.sam.arduino_due_x_dbg firmware/master_cpu
 ```
 
 ## Repository Layout

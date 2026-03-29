@@ -20,6 +20,10 @@ firmware/**/build/
 *_Error.txt
 *.tmp
 
+# Local secrets / machine config
+firmware/master_cpu_esp32/wifi_local.h
+firmware/display_cpu_esp32s3/wifi_local.h
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

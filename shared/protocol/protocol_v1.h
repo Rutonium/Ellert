@@ -13,7 +13,7 @@ static const uint8_t kFrameOverhead = 6; // sof, version, type, seq, len, crc8
 static const uint32_t kHeartbeatMs = 500;
 static const uint32_t kMasterStatusMs = 200;
 static const uint32_t kNodeOfflineTimeoutMs = 1500;
-static const uint8_t kStatusPayloadLen = 18;
+static const uint8_t kStatusPayloadLen = 31;
 
 enum GearCode : uint8_t {
     GEAR_P = 0,

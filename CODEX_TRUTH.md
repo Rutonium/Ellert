@@ -1,14 +1,15 @@
-# Ellert Codex Truth (Linux Mint + Arduino Due)
+# Ellert Codex Truth (Linux Mint + ESP32 Runtime)
 
 This document is the single source of truth for getting this project working from a cold start.
 
 ## Project Identity
 
 - Project root: `/home/rune/Documents/VS Code repos/Ellert`
-- Master firmware folder: `firmware/master_cpu/`
-- Target board: **Arduino Due (Programming Port)**
-- Working FQBN: `arduino:sam:arduino_due_x_dbg`
-- Typical upload port: `/dev/ttyACM0`
+- Active master firmware folder: `firmware/master_cpu_esp32/`
+- Active target board: **ESP32 Dev Module**
+- Active working FQBN: `esp32:esp32:esp32`
+- Active master upload port: `/dev/ttyUSB0`
+- Legacy Due target remains in repo at `firmware/master_cpu/` (not current runtime path)
 
 Current integration status:
 - Both ESP32-S3 JC3248 boards are confirmed working with intended UIs when flashed separately.
@@ -121,6 +122,42 @@ This section is now authoritative for the two display boards.
 - Display-side link counters confirmed:
   - Heartbeat TX/RX active.
   - Status snapshot RX active.
+- Phase 2 map-connectivity prototype:
+  - Master accepts GPS injection over USB serial:
+    - `GPS <lat> <lon> [headingDeg] [sats]`
+    - `GPS?`
+  - Master Wi-Fi local-only config via `firmware/master_cpu_esp32/wifi_local.h` (git-ignored).
+  - NTP status command:
+    - `NTP?`
+  - Online tile fetch prototype command:
+    - `TILETEST <z> <x> <y>`
+  - Verified on hardware:
+    - `WIFI_OK ip=192.168.1.164`
+    - `NTP_OK 2026-03-29 21:21:44 CEST`
+    - `TILETEST_HTTP code=200 len=33469` for `10/548/329.png`
+  - Display-side tile rendering prototype (Wi-Fi + PNGdec):
+    - local-only credentials in `firmware/display_cpu_esp32s3/wifi_local.h` (git-ignored)
+    - verified tile downloads and decode:
+      - `DISPLAY_TILE_OK z=15 x=17154 y=10279`
+      - `DISPLAY_TILE_OK z=15 x=17155 y=10280`
+      - `DISPLAY_TILE_OK z=15 x=17156 y=10281`
+    - LittleFS tile cache enabled and verified:
+      - `DISPLAY_TILE_CACHE_HIT z=14 x=8576 y=5139`
+    - fetch cadence limit enabled:
+      - ~1 tile per `1.2s`
+    - attribution footer shown on map:
+      - `(c)OSM`
+  - Zoom control path:
+    - Master console: `MAPZOOM <0..19>`
+    - Input command mapping: `CMD_FAN_LOW` => zoom out, `CMD_FAN_HIGH` => zoom in
+  - Current map runtime defaults:
+    - map zoom boot default is `17`
+    - display map style default is `grayscale`
+  - Master boot GPS seed enabled:
+    - publishes initial fix `55.527450, 8.470522` at boot
+    - keeps map rendering active immediately after reboot/flash
+  - Display LittleFS mount now uses non-destructive mode:
+    - `LittleFS.begin(false)` to avoid accidental tile-cache wipe on normal reflashes
 - Power-path finding:
   - Backlight pulsation was observed when both displays were powered from master ESP32 `5V`.
   - Pulsation stopped when display USB power was connected.
@@ -305,22 +342,14 @@ Then log out/in once (or run `newgrp dialout` in current shell).
 ```bash
 arduino-cli board list
 ```
-Expected board line should show:
-- Port: `/dev/ttyACM0` (or similar)
-- Board Name: `Arduino Due (Programming Port)`
-- FQBN: `arduino:sam:arduino_due_x_dbg`
+Expected active runtime lines should show:
+- Master: `/dev/ttyUSB0` (ESP32)
+- Input display: `/dev/ttyACM0` (ESP32-S3 display-class board)
+- Output display: `/dev/ttyACM1` (ESP32-S3 display-class board)
 
 ## Exact Build + Upload (Known-Good)
 
-From project root:
-
-```bash
-cd "/home/rune/Documents/VS Code repos/Ellert"
-arduino-cli compile --fqbn arduino:sam:arduino_due_x_dbg --export-binaries firmware/master_cpu
-arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:sam:arduino_due_x_dbg --input-dir firmware/master_cpu/build/arduino.sam.arduino_due_x_dbg firmware/master_cpu
-```
-
-ESP32 targets:
+From project root (active runtime targets):
 
 ```bash
 arduino-cli compile --fqbn esp32:esp32:esp32 --export-binaries firmware/master_cpu_esp32
@@ -334,6 +363,13 @@ Default upload examples:
 arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32 firmware/master_cpu_esp32
 arduino-cli upload -p /dev/ttyACM0 --fqbn esp32:esp32:esp32s3 firmware/input_cpu_esp32s3
 arduino-cli upload -p /dev/ttyACM1 --fqbn esp32:esp32:esp32s3 firmware/display_cpu_esp32s3
+```
+
+Legacy Arduino Due target (kept in repo, not active runtime):
+
+```bash
+arduino-cli compile --fqbn arduino:sam:arduino_due_x_dbg --export-binaries firmware/master_cpu
+arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:sam:arduino_due_x_dbg --input-dir firmware/master_cpu/build/arduino.sam.arduino_due_x_dbg firmware/master_cpu
 ```
 
 ## Headless Mock Display (No Physical Screen)

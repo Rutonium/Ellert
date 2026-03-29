@@ -43,8 +43,8 @@ const ButtonDef kButtons[16] = {
     {"HAZ", CMD_HAZARD, 0xF800},       {"HORN", CMD_HORN, 0xD8C0},
     {"W INT", CMD_WIPER_INT, 0x001F},  {"W LOW", CMD_WIPER_LOW, 0x001F},
     {"W HIGH", CMD_WIPER_HIGH, 0x001F},{"WASH", CMD_WASHER, 0x001F},
-    {"F LOW", CMD_FAN_LOW, 0x07E0},    {"F MID", CMD_FAN_MID, 0x07E0},
-    {"F HIGH", CMD_FAN_HIGH, 0x07E0},  {"DEM", CMD_DEMIST, 0xFD20},
+    {"MAP -", CMD_FAN_LOW, 0x07E0},    {"F MID", CMD_FAN_MID, 0x07E0},
+    {"MAP +", CMD_FAN_HIGH, 0x07E0},   {"DEM", CMD_DEMIST, 0xFD20},
 };
 
 Arduino_DataBus *gBus = new Arduino_ESP32QSPI(

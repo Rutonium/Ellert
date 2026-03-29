@@ -6,6 +6,10 @@ Current scope:
 - 4x4 command grid (16 buttons)
 - Protocol-compatible heartbeat + input event frames
 - UART link to master
+- Map zoom labels on grid:
+  - `MAP -` (command `CMD_FAN_LOW`)
+  - `MAP +` (command `CMD_FAN_HIGH`)
+- Runtime status expected from master diagnostics: `input=ON` with low heartbeat age.
 
 ## Required libraries
 

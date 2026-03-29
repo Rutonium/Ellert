@@ -15,11 +15,35 @@ New ESP32 targets now added in parallel:
 ## Current Decisions
 
 - Use star topology over UART:
-  - `Input CPU <-> Master UART1 (GPIO16/17)`
-  - `Display CPU <-> Master UART2 (GPIO18/19)`
+  - Current bring-up mapping in firmware:
+    - `Display CPU <-> Master GPIO16/17` (header pins `27/28`)
+    - `Input CPU <-> Master GPIO18/19` (header pins `30/31`)
 - Display boards are confirmed as `Guition JC3248W535` (AXS15231B QSPI path).
 - Runtime build/flash scripts are standardized for JC3248 in `tools/`.
-- Remaining blocker before full 3-board integration: correct physical UART cables for display boards (`JST Micro 1.25`).
+- Current verified runtime state: master reports both nodes online (`input=ON`, `display=ON`) with low heartbeat ages.
+
+## Communication Wiring Standard (Display Boards, Color-Based)
+
+Use this as the canonical wiring reference for both display boards. The displays are encased, so wire color is the trusted identifier:
+
+- `Green` = display `GND`
+- `Yellow` = display `RX`
+- `Black` = display `TX`
+- `Red` = display `+5V`
+
+Master board connection for display link (current mapping):
+
+- `Black` (display `TX`) -> master header pin `27` (`GPIO16`, master `RX`)
+- `Yellow` (display `RX`) -> master header pin `28` (`GPIO17`, master `TX`)
+- `Green` (display `GND`) -> master `GND` (recommended header pin `32`; `14` or `38` also GND)
+- `Red` (display `+5V`) -> master `Vin 5V` header pin `19` (or external 5V supply with common GND)
+
+Master board connection for input display link (current mapping):
+
+- `Black` (input display `TX`) -> master header pin `30` (`GPIO18`, master `RX`)
+- `Yellow` (input display `RX`) -> master header pin `31` (`GPIO19`, master `TX`)
+- `Green` (input display `GND`) -> master `GND` (recommended header pin `32`; `14` or `38` also GND)
+- `Red` (input display `+5V`) -> master `Vin 5V` header pin `19` (or external 5V supply with common GND)
 
 ## Process Status
 
@@ -36,9 +60,9 @@ Implemented:
   - top-left time and `km/t` speed unit
 
 Next session:
-1. Connect Master/Input/Display over UART using new JST 1.25 cables.
-2. Validate end-to-end command flow: touch press -> master action -> dashboard update.
-3. Replace placeholder telemetry in `master_cpu_esp32` with real motor/BMS data.
+1. Fine-tune dashboard/input UX now that UART links are stable.
+2. Replace placeholder telemetry in `master_cpu_esp32` with real motor/BMS data.
+3. Remove temporary link-debug presentation once final UI is locked.
 
 ## Start Here
 

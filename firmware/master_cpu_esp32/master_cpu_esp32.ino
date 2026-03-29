@@ -17,10 +17,13 @@ Decoder gDisplayDecoder;
 uint8_t gSeq = 0;
 
 constexpr uint32_t kBaud = 115200;
-constexpr int kInputRxPin = 16;
-constexpr int kInputTxPin = 17;
-constexpr int kDisplayRxPin = 18;
-constexpr int kDisplayTxPin = 19;
+// Temporary wiring-friendly mapping for bring-up:
+// - Display node on labeled UART2 pins (GPIO16/17, header 27/28)
+// - Input node on alternate pins (GPIO18/19, header 30/31)
+constexpr int kInputRxPin = 18;
+constexpr int kInputTxPin = 19;
+constexpr int kDisplayRxPin = 16;
+constexpr int kDisplayTxPin = 17;
 
 // -------- Master IO --------
 constexpr int PIN_DRL = 2;
@@ -81,6 +84,7 @@ struct RuntimeState {
   uint32_t lastHeartbeatTxMs = 0;
   uint32_t lastStatusTxMs = 0;
   uint32_t lastIndicatorToggleMs = 0;
+  uint32_t lastDebugTxMs = 0;
 } gState;
 
 uint16_t gTripTotalTenthsKm = 0;
@@ -379,6 +383,27 @@ void sendStatusIfDue() {
   writeFrame(gDisplayUart, MSG_STATUS_SNAPSHOT, payload, sizeof(payload));
 }
 
+void sendDebugIfDue() {
+  const uint32_t now = millis();
+  if (now - gState.lastDebugTxMs < 1000) {
+    return;
+  }
+  gState.lastDebugTxMs = now;
+
+  const uint32_t inputAgeMs = now - gState.lastInputHeartbeatMs;
+  const uint32_t displayAgeMs = now - gState.lastDisplayHeartbeatMs;
+
+  Serial.print("LINK input=");
+  Serial.print(gState.inputOnline ? "ON" : "OFF");
+  Serial.print(" age=");
+  Serial.print(inputAgeMs);
+  Serial.print("ms | display=");
+  Serial.print(gState.displayOnline ? "ON" : "OFF");
+  Serial.print(" age=");
+  Serial.print(displayAgeMs);
+  Serial.println("ms");
+}
+
 void initPins() {
   const int outputPins[] = {
       PIN_DRL,       PIN_FRONT_NEAR, PIN_FRONT_HIGH, PIN_IND_LEFT,  PIN_IND_RIGHT,
@@ -416,6 +441,7 @@ void loop() {
   updateTripsAndBrake();
   sendHeartbeatIfDue();
   sendStatusIfDue();
+  sendDebugIfDue();
 
   digitalWrite(LED_BUILTIN, gState.inputOnline ? HIGH : LOW);
 }

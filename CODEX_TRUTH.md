@@ -12,7 +12,7 @@ This document is the single source of truth for getting this project working fro
 
 Current integration status:
 - Both ESP32-S3 JC3248 boards are confirmed working with intended UIs when flashed separately.
-- Physical 3-board UART integration is pending cable delivery (`JST Micro 1.25`).
+- 3-board UART integration is now verified in runtime (`input=ON`, `display=ON` observed from master diagnostics).
 
 ## Documentation Discipline (Mandatory)
 
@@ -110,6 +110,37 @@ This section is now authoritative for the two display boards.
   - `tools/flash_jc3248_nodes.sh`
 - Pending: physical UART connection between master and both display boards due to missing JST 1.25 cables.
 
+### Runtime Integration Update (Verified 2026-03-29)
+
+- Master board (`/dev/ttyUSB0`) now communicates with both display-class nodes over UART in live runtime.
+- Observed from master diagnostics:
+  - `input=ON` with low heartbeat age.
+  - `display=ON` with low heartbeat age.
+- Display-side link counters confirmed:
+  - Heartbeat TX/RX active.
+  - Status snapshot RX active.
+
+Color-based wiring standard for both encased display boards (canonical):
+- `Green` = `GND`
+- `Yellow` = `RX`
+- `Black` = `TX`
+- `Red` = `+5V`
+
+Current master UART role mapping in firmware (`firmware/master_cpu_esp32/master_cpu_esp32.ino`):
+- `Display CPU` on `GPIO16/17` (header pins `27/28`)
+- `Input CPU` on `GPIO18/19` (header pins `30/31`)
+
+Master-side wire hookups:
+- Display node:
+  - `Black` -> pin `27` (`GPIO16`, RX)
+  - `Yellow` -> pin `28` (`GPIO17`, TX)
+- Input node:
+  - `Black` -> pin `30` (`GPIO18`, RX)
+  - `Yellow` -> pin `31` (`GPIO19`, TX)
+- Both nodes:
+  - `Green` -> `GND` (recommended pin `32`)
+  - `Red` -> `Vin 5V` pin `19` (or external 5V with common GND)
+
 ### Required ESP32 Upload Profile (Critical)
 
 Use this exact profile for JC3248W535 display boards:
@@ -188,9 +219,9 @@ In-repo display/touch reference bundle (added by user):
 
 Important: firmware uses **GPIO numbers**, not physical header numbers.
 
-For Master UART links in `firmware/master_cpu_esp32/master_cpu_esp32.ino`:
-- Input CPU UART1: `RX=GPIO16`, `TX=GPIO17`
-- Display CPU UART2: `RX=GPIO18`, `TX=GPIO19`
+For current Master UART links in `firmware/master_cpu_esp32/master_cpu_esp32.ino`:
+- Display CPU: `RX=GPIO16`, `TX=GPIO17`
+- Input CPU: `RX=GPIO18`, `TX=GPIO19`
 
 On the 2A54N board header numbering (from the PDF pin diagram):
 - Physical pin `27` = `GPIO16`

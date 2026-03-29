@@ -22,6 +22,11 @@ uint8_t gSeq = 0;
 uint32_t gLastHeartbeatTxMs = 0;
 uint32_t gLastMasterHeartbeatMs = 0;
 uint32_t gLastStatusRxMs = 0;
+uint32_t gLastDebugMs = 0;
+uint32_t gHbTxCount = 0;
+uint32_t gHbRxCount = 0;
+uint32_t gStatusRxCount = 0;
+constexpr bool kShowLinkTestScreen = true;
 
 struct DashboardState {
   uint8_t speedKmt = 0;
@@ -54,6 +59,7 @@ void sendHeartbeatIfDue() {
   gLastHeartbeatTxMs = now;
   const uint8_t payload[1] = {1};
   sendFrame(MSG_HEARTBEAT, payload, sizeof(payload));
+  ++gHbTxCount;
 }
 
 void applyStatusSnapshot(const Frame &frame) {
@@ -84,9 +90,30 @@ void pollMaster() {
     const uint8_t b = static_cast<uint8_t>(Serial1.read());
     Frame frame;
     if (!gDecoder.feed(b, frame)) continue;
-    if (frame.type == MSG_HEARTBEAT) gLastMasterHeartbeatMs = millis();
-    else if (frame.type == MSG_STATUS_SNAPSHOT) applyStatusSnapshot(frame);
+    if (frame.type == MSG_HEARTBEAT) {
+      gLastMasterHeartbeatMs = millis();
+      ++gHbRxCount;
+    } else if (frame.type == MSG_STATUS_SNAPSHOT) {
+      applyStatusSnapshot(frame);
+      ++gStatusRxCount;
+    }
   }
+}
+
+void debugIfDue() {
+  const uint32_t now = millis();
+  if (now - gLastDebugMs < 1000) return;
+  gLastDebugMs = now;
+  Serial.print("DISPLAY_LINK rxPin=");
+  Serial.print(kMasterUartRxPin);
+  Serial.print(" txPin=");
+  Serial.print(kMasterUartTxPin);
+  Serial.print(" hbTx=");
+  Serial.print(gHbTxCount);
+  Serial.print(" hbRx=");
+  Serial.print(gHbRxCount);
+  Serial.print(" statusRx=");
+  Serial.println(gStatusRxCount);
 }
 
 const char *gearLabel(uint8_t gear) {
@@ -175,23 +202,82 @@ void drawDashboard() {
   gGfx->flush();
 }
 
+void drawLinkTestScreen() {
+  const uint32_t now = millis();
+  const uint32_t hbAge = now - gLastMasterHeartbeatMs;
+  const uint32_t stAge = now - gLastStatusRxMs;
+  const bool hbOk = hbAge <= kNodeOfflineTimeoutMs;
+  const bool stOk = stAge <= 1500;
+
+  gGfx->fillScreen(RGB565_BLACK);
+  gGfx->setTextColor(RGB565_WHITE);
+  gGfx->setTextSize(3);
+  gGfx->setCursor(20, 20);
+  gGfx->print("LINK TEST");
+
+  gGfx->setTextSize(3);
+  gGfx->setCursor(20, 80);
+  gGfx->print("MASTER HB:");
+  gGfx->setTextColor(hbOk ? RGB565_GREEN : RGB565_RED);
+  gGfx->setCursor(280, 80);
+  gGfx->print(hbOk ? "OK" : "NO");
+
+  gGfx->setTextColor(RGB565_WHITE);
+  gGfx->setCursor(20, 130);
+  gGfx->print("STATUS:");
+  gGfx->setTextColor(stOk ? RGB565_GREEN : RGB565_RED);
+  gGfx->setCursor(280, 130);
+  gGfx->print(stOk ? "OK" : "NO");
+
+  gGfx->setTextColor(RGB565_WHITE);
+  gGfx->setTextSize(2);
+  gGfx->setCursor(20, 190);
+  gGfx->print("HB_RX: ");
+  gGfx->print(gHbRxCount);
+  gGfx->setCursor(20, 220);
+  gGfx->print("HB_TX: ");
+  gGfx->print(gHbTxCount);
+  gGfx->setCursor(20, 250);
+  gGfx->print("ST_RX: ");
+  gGfx->print(gStatusRxCount);
+  gGfx->setCursor(260, 190);
+  gGfx->print("HB AGE");
+  gGfx->setCursor(260, 212);
+  gGfx->print(hbAge);
+  gGfx->print("ms");
+  gGfx->setCursor(260, 242);
+  gGfx->print("ST AGE");
+  gGfx->setCursor(260, 264);
+  gGfx->print(stAge);
+  gGfx->print("ms");
+
+  gGfx->flush();
+}
+
 } // namespace
 
 void setup() {
   Serial.begin(115200);
+  delay(300);
+  Serial.println("DISPLAY_BOOT_EARLY");
   Serial1.begin(115200, SERIAL_8N1, kMasterUartRxPin, kMasterUartTxPin);
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(kBacklightPin, OUTPUT);
   digitalWrite(kBacklightPin, kBacklightOnLevel);
 
   if (!gGfx->begin()) {
+    Serial.println("DISPLAY_GFX_BEGIN_FAIL");
     while (true) delay(1000);
   }
   gGfx->setRotation(kScreenRotation);
 
   gLastMasterHeartbeatMs = millis();
   gLastStatusRxMs = millis();
-  drawDashboard();
+  if (kShowLinkTestScreen) {
+    drawLinkTestScreen();
+  } else {
+    drawDashboard();
+  }
 
   Serial.println("DISPLAY_ESP32S3_AXS_CANVAS_BOOT");
 }
@@ -199,7 +285,12 @@ void setup() {
 void loop() {
   pollMaster();
   sendHeartbeatIfDue();
-  drawDashboard();
+  debugIfDue();
+  if (kShowLinkTestScreen) {
+    drawLinkTestScreen();
+  } else {
+    drawDashboard();
+  }
   digitalWrite(LED_BUILTIN, (millis() - gLastMasterHeartbeatMs) <= kNodeOfflineTimeoutMs ? HIGH : LOW);
   delay(120);
 }

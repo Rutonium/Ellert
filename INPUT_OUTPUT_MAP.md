@@ -102,8 +102,9 @@ Source of truth: `firmware/master_cpu/PinDefinitions.h` (used by `PinMap::applyD
 Source: `firmware/master_cpu_esp32/master_cpu_esp32.ino`
 
 Serial links:
-- `UART1` (Input CPU): `RX=GPIO16`, `TX=GPIO17`
-- `UART2` (Display CPU): `RX=GPIO18`, `TX=GPIO19`
+- Current bring-up mapping in firmware:
+  - `Display CPU`: `RX=GPIO16`, `TX=GPIO17`
+  - `Input CPU`: `RX=GPIO18`, `TX=GPIO19`
 
 Physical header mapping on `2A54N-ESP32`:
 - `GPIO16` -> header pin `27`
@@ -113,7 +114,30 @@ Physical header mapping on `2A54N-ESP32`:
 
 Status:
 - Software mapping verified.
-- Physical interconnect pending `JST Micro 1.25` cables for JC3248 display board UART connectors.
+- Physical interconnect verified in runtime (`input=ON`, `display=ON` from master diagnostics).
+
+## Communication (Display Boards, Color-Based Standard)
+
+Displays are encased, so the cable color mapping is the canonical reference for both display boards:
+
+- `Green` = display `GND`
+- `Yellow` = display `RX`
+- `Black` = display `TX`
+- `Red` = display `+5V`
+
+Master-side wiring for display communication (current firmware mapping):
+
+- `Black` (display `TX`) -> master header pin `27` (`GPIO16`, master `RX`)
+- `Yellow` (display `RX`) -> master header pin `28` (`GPIO17`, master `TX`)
+- `Green` (display `GND`) -> master `GND` (recommended header pin `32`)
+- `Red` (display `+5V`) -> master `Vin 5V` header pin `19` (or external 5V with common GND)
+
+Master-side wiring for input display communication (current firmware mapping):
+
+- `Black` (input display `TX`) -> master header pin `30` (`GPIO18`, master `RX`)
+- `Yellow` (input display `RX`) -> master header pin `31` (`GPIO19`, master `TX`)
+- `Green` (input display `GND`) -> master `GND` (recommended header pin `32`)
+- `Red` (input display `+5V`) -> master `Vin 5V` header pin `19` (or external 5V with common GND)
 
 Inputs:
 - `Ignition` -> `GPIO32` (pull-up, active low)
